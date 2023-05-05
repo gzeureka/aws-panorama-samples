@@ -23,10 +23,10 @@ Note: MacOS is currently not supported due to model compilation issues.
 
 1. Click the Launch Stack Button below. **NOTE** : This process will take about ```20 minutes```  
     * **US-EAST-1** :  
- [![Foo](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=arm-ec2-instance&templateURL=https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ec2-instance-panorama.yml)
+ [![Foo](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=arm-ec2-instance&templateURL=https://eric-panorama-test-utility.s3.amazonaws.com/test-utility-env-setup/ec2-instance-panorama.yml)
 
     * **US-WEST-2** :  
- [![Foo](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/template?stackName=arm-ec2-instance&templateURL=https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ec2-instance-panorama.yml)
+ [![Foo](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/template?stackName=arm-ec2-instance&templateURL=https://eric-panorama-test-utility.s3.amazonaws.com/test-utility-env-setup/ec2-instance-panorama.yml)
 
 2. Log into the EC2 Instance (See next section) and wait for the file ```INSTALLATION-COMPLETE.txt``` to appear on your ```/home/ubuntu```. This marks the end of the EC2 instance set up
 
