@@ -12,7 +12,7 @@ import boto3
 
 import panoramasdk
 
-panorama_client = boto3.client('panorama') # FIXME : pass from sample notebook
+panorama_client = boto3.client('panorama', region_name='us-east-1') # FIXME : pass from sample notebook
 
 
 # ---

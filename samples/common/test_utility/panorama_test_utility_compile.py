@@ -63,7 +63,7 @@ def test_utility_compile_main():
 
         if need_model_compilation:
             panorama_test_utility.prepare_model_for_test(
-                region = args.region,
+                region = 'us-east-1',
                 data_shape = model_data_shape,
                 framework = model_framework,
                 input_model_filepath = raw_model_file,
