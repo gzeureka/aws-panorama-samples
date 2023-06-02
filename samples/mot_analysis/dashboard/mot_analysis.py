@@ -44,16 +44,16 @@ session = boto3.Session()
 
 def CheckTime(): return datetime.datetime.now()
 def replacelist(lst): return str(lst).replace('[', '(').replace(']', ')')
-@st.experimental_singleton
+@st.cache_data
 def get_data(query):
     return wr.athena.read_sql_query(sql=query, database="default", boto3_session=session)
 
-@st.experimental_singleton
+@st.cache_data
 def get_cameraimage(bucket, key):
     file_byte_string = s3.get_object(Bucket=bucket, Key=key)['Body'].read()
     return PIL.Image.open(io.BytesIO(file_byte_string))
 
-@st.experimental_singleton
+@st.cache_data
 def get_renderedheatmap(_camera, df, alpha=0.5, cmap='viridis', axis='off'):
     if len(df) == 0:
         return None
@@ -86,7 +86,7 @@ def get_renderedheatmap(_camera, df, alpha=0.5, cmap='viridis', axis='off'):
 
 try:
     if st.sidebar.button('Clear cache and refresh database'):
-        st.experimental_singleton.clear()
+        st.cache_data.clear()
         wr.athena.repair_table(table="heatmap", database="default", boto3_session=session)
 
     s3 = session.client('s3')
