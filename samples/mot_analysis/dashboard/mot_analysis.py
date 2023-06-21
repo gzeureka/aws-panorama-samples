@@ -3,7 +3,7 @@ BUCKET_NAME = '##BUCKET_NAME##'
 KVS_STREAM_NAME = "panorama_preview"
 KVS_TIMEOUT = 3600  # 1 hour of web session time
 
-import awswrangler as wr  
+import awswrangler as wr
 import boto3
 import datetime
 
@@ -27,14 +27,14 @@ import streamlit.components.v1 as components
 
 import io
 
-st.set_page_config(page_title=None, 
-                    page_icon=None, 
-                    layout="wide", 
-                    initial_sidebar_state="auto", 
+st.set_page_config(page_title=None,
+                    page_icon=None,
+                    layout="wide",
+                    initial_sidebar_state="auto",
                     menu_items=None)
 
 matplotlib.rc('legend', fontsize=20) # using a size in points
-matplotlib.rc('xtick', labelsize=5) 
+matplotlib.rc('xtick', labelsize=5)
 matplotlib.rc('ytick', labelsize=5)
 matplotlib.rc('axes', titlesize=15, labelsize=15)   #For setting chart title
 matplotlib.rc('figure', titlesize=20)
@@ -44,16 +44,16 @@ session = boto3.Session()
 
 def CheckTime(): return datetime.datetime.now()
 def replacelist(lst): return str(lst).replace('[', '(').replace(']', ')')
-@st.experimental_singleton
+@st.cache_data
 def get_data(query):
     return wr.athena.read_sql_query(sql=query, database="default", boto3_session=session)
 
-@st.experimental_singleton
+@st.cache_data
 def get_cameraimage(bucket, key):
     file_byte_string = s3.get_object(Bucket=bucket, Key=key)['Body'].read()
     return PIL.Image.open(io.BytesIO(file_byte_string))
 
-@st.experimental_singleton
+@st.cache_data
 def get_renderedheatmap(_camera, df, alpha=0.5, cmap='viridis', axis='off'):
     if len(df) == 0:
         return None
@@ -72,7 +72,7 @@ def get_renderedheatmap(_camera, df, alpha=0.5, cmap='viridis', axis='off'):
 
     figure = plt.gcf()
     figure.set_size_inches(16, 10)
-    
+
     # display
     plt.imshow(_camera)
     plt.imshow(255 * normalized_heat_map, alpha=alpha, cmap=cmap)
@@ -86,7 +86,7 @@ def get_renderedheatmap(_camera, df, alpha=0.5, cmap='viridis', axis='off'):
 
 try:
     if st.sidebar.button('Clear cache and refresh database'):
-        st.experimental_singleton.clear()
+        st.cache_data.clear()
         wr.athena.repair_table(table="heatmap", database="default", boto3_session=session)
 
     s3 = session.client('s3')
@@ -132,7 +132,7 @@ try:
         # Grab the HLS Stream URL from the endpoint
         kvam = session.client("kinesis-video-archived-media", endpoint_url=endpoint)
         url = kvam.get_hls_streaming_session_url(StreamName=KVS_STREAM_NAME, PlaybackMode="LIVE", Expires=KVS_TIMEOUT)['HLSStreamingSessionURL']
-        
+
         embedded_player = f"<script src='https://cdn.jsdelivr.net/npm/hls.js@latest'></script> \
             <center><video id='video' class='player' width='100%' controls autoplay muted></video></center> \
             <script> \
@@ -148,7 +148,7 @@ try:
         components.html(embedded_player, height=600)
     except:
         st.write("Video offline")
-    
+
     #For getting heatmap
     image_name = f'{dt.year}-{str(dt.month).zfill(2)}-{str(dt.day).zfill(2)}.png'
     camera = get_cameraimage(BUCKET_NAME, f'dailycapture/{camera_id}/{image_name}')
@@ -201,7 +201,7 @@ try:
             rects[idx]['width'] = round(val['width'])
             rects[idx]['height'] = round(val['height'])
         annotation.output_xml(f'{image_name}', heatImage, rects)
-    
+
     #For getting maximum objects in a single shot
     query = f"SELECT cast(hour as int) as hour, max(ocount) as Crowd FROM (SELECT hour, count(fnum) as ocount FROM heatmap where camera='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {replacelist(cid)} group by hour, fnum) group by hour order by hour"
     crowd_df = get_data(query).set_index('hour').reindex(list(range(start_time, end_time+1, 1)), fill_value=0)
